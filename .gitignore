@@ -3,6 +3,7 @@
 # dependencies
 node_modules/
 /node_modules
+virtual-dm/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -17,9 +18,12 @@ node_modules/
 # next.js
 /.next/
 /out/
+virtual-dm/.next/
+virtual-dm/out/
 
 # production
 /build
+virtual-dm/build/
 
 # misc
 .DS_Store
