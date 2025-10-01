@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Token } from '../models/Token';
+import AddTokenModal from '../components/AddTokenModal';
 
 export default function Home() {
   // Available colors for random selection
@@ -10,41 +11,33 @@ export default function Home() {
     'bg-violet-500', 'bg-fuchsia-500', 'bg-rose-500', 'bg-amber-500'
   ];
 
-  const [tokens, setTokens] = useState<Token[]>([new Token('Default', 10, 1, true)]); // Default fallback
+  const [tokens, setTokens] = useState<Token[]>([]); // Start with empty token list
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Generate random tokens only on client side
-  useEffect(() => {
-    const numTokens = Math.floor(Math.random() * 8) + 5; // 5-12 tokens
-    const generatedTokens: Token[] = [];
-    
-    for (let i = 0; i < numTokens; i++) {
-      const randomInitiative = Math.floor(Math.random() * 20) + 1; // 1-20 initiative
-      const randomHP = Math.floor(Math.random() * 50) + 10; // 10-60 HP
-      const randomAlly = Math.random() > 0.5; // Random ally/enemy
-      const tokenName = `Token ${i + 1}`;
-      
-      const token = new Token(tokenName, randomHP, randomInitiative, randomAlly);
-      generatedTokens.push(token);
-    }
-    
-    // Sort by initiative in descending order (highest to lowest)
-    const sortedTokens = generatedTokens.sort((a, b) => b.initiative - a.initiative);
-    setTokens(sortedTokens);
-  }, []);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Helper function to get color based on token properties
   const getTokenColor = (token: Token, index: number): string => {
     return availableColors[index % availableColors.length];
   };
+
+  // Function to add a new token
+  const handleAddToken = (newToken: Token) => {
+    setTokens(prevTokens => {
+      const updatedTokens = [...prevTokens, newToken];
+      // Sort by initiative in descending order (highest to lowest)
+      return updatedTokens.sort((a, b) => b.initiative - a.initiative);
+    });
+  };
   
   const goToPrevious = () => {
+    if (tokens.length === 0) return;
     setCurrentIndex((prevIndex) => 
       prevIndex === 0 ? tokens.length - 1 : prevIndex - 1
     );
   };
   
   const goToNext = () => {
+    if (tokens.length === 0) return;
     setCurrentIndex((prevIndex) => 
       prevIndex === tokens.length - 1 ? 0 : prevIndex + 1
     );
@@ -58,25 +51,31 @@ export default function Home() {
         <div className="h-16"></div>
         
         {/* Navigation arrows and squares */}
-        <div className="flex items-center space-x-2 mb-4">
-          <button 
-            onClick={goToPrevious}
-            className="p-2 hover:bg-gray-200 rounded"
-          >
-            ←
-          </button>
-          
-          <div className={`w-16 h-16 ${getTokenColor(tokens[currentIndex], currentIndex)} rounded flex items-center justify-center text-white font-bold text-lg`}>
-            {tokens[currentIndex].initiative}
+        {tokens.length > 0 ? (
+          <div className="flex items-center space-x-2 mb-4">
+            <button 
+              onClick={goToPrevious}
+              className="p-2 hover:bg-gray-200 rounded"
+            >
+              ←
+            </button>
+            
+            <div className={`w-16 h-16 ${getTokenColor(tokens[currentIndex], currentIndex)} rounded flex items-center justify-center text-white font-bold text-lg`}>
+              {tokens[currentIndex].initiative}
+            </div>
+            
+            <button 
+              onClick={goToNext}
+              className="p-2 hover:bg-gray-200 rounded"
+            >
+              →
+            </button>
           </div>
-          
-          <button 
-            onClick={goToNext}
-            className="p-2 hover:bg-gray-200 rounded"
-          >
-            →
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center justify-center mb-4 h-16">
+            <p className="text-gray-500 text-sm">No tokens yet</p>
+          </div>
+        )}
         
         {/* List of all tokens */}
         <div className="flex flex-col space-y-2 flex-1 overflow-y-auto">
@@ -137,6 +136,22 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Add Token Button - Bottom Right */}
+      <button
+        onClick={() => setIsAddModalOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-bold transition-colors z-40"
+        title="Add New Token"
+      >
+        +
+      </button>
+
+      {/* Add Token Modal */}
+      <AddTokenModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddToken={handleAddToken}
+      />
     </div>
   );
 }
