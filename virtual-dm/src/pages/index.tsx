@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Token } from '../models/Token';
 
 export default function Home() {
   // Available colors for random selection
@@ -9,41 +10,53 @@ export default function Home() {
     'bg-violet-500', 'bg-fuchsia-500', 'bg-rose-500', 'bg-amber-500'
   ];
 
-  const [squares, setSquares] = useState([{ id: 1, color: 'bg-gray-500' }]); // Default fallback
+  const [tokens, setTokens] = useState<Token[]>([new Token('Default', 10, 1, true)]); // Default fallback
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Generate random squares only on client side
+  // Generate random tokens only on client side
   useEffect(() => {
-    const numSquares = Math.floor(Math.random() * 8) + 5; // 5-12 squares
-    const generatedSquares = [];
+    const numTokens = Math.floor(Math.random() * 8) + 5; // 5-12 tokens
+    const generatedTokens: Token[] = [];
     
-    for (let i = 0; i < numSquares; i++) {
-      const randomNumber = Math.floor(Math.random() * 100) + 1; // 1-100
-      const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
-      generatedSquares.push({ id: randomNumber, color: randomColor });
+    for (let i = 0; i < numTokens; i++) {
+      const randomInitiative = Math.floor(Math.random() * 20) + 1; // 1-20 initiative
+      const randomHP = Math.floor(Math.random() * 50) + 10; // 10-60 HP
+      const randomAlly = Math.random() > 0.5; // Random ally/enemy
+      const tokenName = `Token ${i + 1}`;
+      
+      const token = new Token(tokenName, randomHP, randomInitiative, randomAlly);
+      generatedTokens.push(token);
     }
     
-    // Sort by id in descending order (highest to lowest)
-    const sortedSquares = generatedSquares.sort((a, b) => b.id - a.id);
-    setSquares(sortedSquares);
+    // Sort by initiative in descending order (highest to lowest)
+    const sortedTokens = generatedTokens.sort((a, b) => b.initiative - a.initiative);
+    setTokens(sortedTokens);
   }, []);
+
+  // Helper function to get color based on token properties
+  const getTokenColor = (token: Token, index: number): string => {
+    return availableColors[index % availableColors.length];
+  };
   
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? squares.length - 1 : prevIndex - 1
+      prevIndex === 0 ? tokens.length - 1 : prevIndex - 1
     );
   };
   
   const goToNext = () => {
     setCurrentIndex((prevIndex) => 
-      prevIndex === squares.length - 1 ? 0 : prevIndex + 1
+      prevIndex === tokens.length - 1 ? 0 : prevIndex + 1
     );
   };
 
   return (
     <div className="flex min-h-screen">
       {/* Left side - smaller */}
-      <div className="w-1/6 flex flex-col items-center justify-center bg-gray-100 p-4">
+      <div className="w-1/6 flex flex-col items-center bg-gray-100 p-4">
+        {/* Top buffer space */}
+        <div className="h-16"></div>
+        
         {/* Navigation arrows and squares */}
         <div className="flex items-center space-x-2 mb-4">
           <button 
@@ -53,8 +66,8 @@ export default function Home() {
             ←
           </button>
           
-          <div className={`w-12 h-12 ${squares[currentIndex].color} rounded flex items-center justify-center text-white font-bold`}>
-            {squares[currentIndex].id}
+          <div className={`w-16 h-16 ${getTokenColor(tokens[currentIndex], currentIndex)} rounded flex items-center justify-center text-white font-bold text-lg`}>
+            {tokens[currentIndex].initiative}
           </div>
           
           <button 
@@ -65,17 +78,16 @@ export default function Home() {
           </button>
         </div>
         
-        {/* List of all squares */}
-        <div className="flex flex-col space-y-2 max-h-96 overflow-y-auto">
-          {squares.map((square, index) => (
+        {/* List of all tokens */}
+        <div className="flex flex-col space-y-2 flex-1 overflow-y-auto">
+          {tokens.map((token, index) => (
             <div
-              key={square.id}
-              className={`w-8 h-8 rounded cursor-pointer ${square.color} ${
+              key={token.name}
+              className={`w-12 h-12 rounded cursor-pointer ${getTokenColor(token, index)} ${
                 index === currentIndex 
                   ? 'ring-2 ring-gray-800' 
                   : 'hover:opacity-80'
               }`}
-              onClick={() => setCurrentIndex(index)}
             />
           ))}
         </div>
@@ -83,41 +95,45 @@ export default function Home() {
       
       {/* Right side - larger, subdivided */}
       <div className="w-5/6 flex flex-col">
-        {/* Top half - numbers ≤50 */}
+        {/* Top half - Allies */}
         <div className="flex-1 flex flex-wrap items-center justify-center bg-gray-200 p-4 gap-3 overflow-y-auto">
-          {squares
-            .filter(square => square.id <= 50)
-            .map((square) => (
+          {tokens
+            .filter(token => token.ally)
+            .map((token, index) => (
               <div
-                key={`top-${square.id}`}
-                className={`w-16 h-16 ${square.color} rounded flex items-center justify-center text-white font-bold shadow-md ${
-                  square.id === squares[currentIndex].id ? 'ring-4 ring-yellow-400' : ''
+                key={`ally-${token.name}`}
+                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex flex-col items-center justify-center text-white font-bold shadow-md ${
+                  token.name === tokens[currentIndex].name ? 'ring-4 ring-yellow-400' : ''
                 }`}
               >
-                {square.id}
+                <div className="text-sm">{token.name}</div>
+                <div className="text-lg">{token.initiative}</div>
+                <div className="text-sm">{token.currentHP}/{token.totalHP}</div>
               </div>
             ))}
-          {squares.filter(square => square.id <= 50).length === 0 && (
-            <p className="text-gray-500 text-lg">No squares ≤50</p>
+          {tokens.filter(token => token.ally).length === 0 && (
+            <p className="text-gray-500 text-lg">No allies</p>
           )}
         </div>
         
-        {/* Bottom half - numbers >50 */}
+        {/* Bottom half - Enemies */}
         <div className="flex-1 flex flex-wrap items-center justify-center bg-gray-300 p-4 gap-3 overflow-y-auto">
-          {squares
-            .filter(square => square.id > 50)
-            .map((square) => (
+          {tokens
+            .filter(token => !token.ally)
+            .map((token, index) => (
               <div
-                key={`bottom-${square.id}`}
-                className={`w-16 h-16 ${square.color} rounded flex items-center justify-center text-white font-bold shadow-md ${
-                  square.id === squares[currentIndex].id ? 'ring-4 ring-yellow-400' : ''
+                key={`enemy-${token.name}`}
+                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex flex-col items-center justify-center text-white font-bold shadow-md ${
+                  token.name === tokens[currentIndex].name ? 'ring-4 ring-yellow-400' : ''
                 }`}
               >
-                {square.id}
+                <div className="text-sm">{token.name}</div>
+                <div className="text-lg">{token.initiative}</div>
+                <div className="text-sm">{token.currentHP}/{token.totalHP}</div>
               </div>
             ))}
-          {squares.filter(square => square.id > 50).length === 0 && (
-            <p className="text-gray-500 text-lg">No squares &gt;50</p>
+          {tokens.filter(token => !token.ally).length === 0 && (
+            <p className="text-gray-500 text-lg">No enemies</p>
           )}
         </div>
       </div>
