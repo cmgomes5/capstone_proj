@@ -4,19 +4,22 @@ export class Token {
   totalHP: number;
   initiative: number;
   name: string;
+  imageUrl?: string; // Optional image URL for token display
 
   constructor(
     name: string,
     totalHP: number,
     initiative: number,
     ally: boolean = true,
-    currentHP?: number
+    currentHP?: number,
+    imageUrl?: string
   ) {
     this.name = name;
     this.totalHP = totalHP;
     this.currentHP = currentHP ?? totalHP; // Default to full HP if not specified
     this.initiative = initiative;
     this.ally = ally;
+    this.imageUrl = imageUrl;
   }
 
   // Helper method to check if token is alive

@@ -19,6 +19,26 @@ export default function AddTokenModal({ isOpen, onClose, onAddToken }: AddTokenM
   const [totalHP, setTotalHP] = useState('');     // Total hit points (required, positive)
   const [initiative, setInitiative] = useState(''); // Initiative roll (required, any integer)
   const [ally, setAlly] = useState(true);         // Token type: true = ally, false = enemy
+  const [imageUrl, setImageUrl] = useState('');   // Optional image URL
+  const [imageFile, setImageFile] = useState<File | null>(null); // Optional image file
+
+  /**
+   * Handles image file selection
+   * Converts the selected file to a data URL for display
+   */
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      // Convert file to data URL for preview and storage
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setImageUrl(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   /**
    * Handles form submission
@@ -48,9 +68,9 @@ export default function AddTokenModal({ isOpen, onClose, onAddToken }: AddTokenM
     }
 
     // Create new Token instance using our Token class
-    // Constructor: Token(name, totalHP, initiative, ally, currentHP?)
+    // Constructor: Token(name, totalHP, initiative, ally, currentHP?, imageUrl?)
     // currentHP defaults to totalHP if not provided
-    const newToken = new Token(name.trim(), hpValue, initiativeValue, ally);
+    const newToken = new Token(name.trim(), hpValue, initiativeValue, ally, undefined, imageUrl || undefined);
     
     // Pass the new token back to the parent component
     onAddToken(newToken);
@@ -77,6 +97,8 @@ export default function AddTokenModal({ isOpen, onClose, onAddToken }: AddTokenM
     setTotalHP('');
     setInitiative('');
     setAlly(true); // Default to ally
+    setImageUrl('');
+    setImageFile(null);
   };
 
   // Early return: don't render anything if modal is closed
@@ -172,6 +194,30 @@ export default function AddTokenModal({ isOpen, onClose, onAddToken }: AddTokenM
                 <span className="text-red-600 font-medium">Enemy</span>
               </label>
             </div>
+          </div>
+
+          {/* Image Upload Field */}
+          <div>
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
+              Token Image (Optional)
+            </label>
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {/* Image preview */}
+            {imageUrl && (
+              <div className="mt-2">
+                <img
+                  src={imageUrl}
+                  alt="Token preview"
+                  className="w-16 h-16 object-cover rounded border border-gray-300"
+                />
+              </div>
+            )}
           </div>
 
           {/* Action Buttons - Cancel and Submit */}

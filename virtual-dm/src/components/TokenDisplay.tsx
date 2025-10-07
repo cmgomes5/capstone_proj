@@ -32,12 +32,23 @@ export default function TokenDisplay({ tokens, currentToken, getTokenColor, onTo
               </div>
               {/* Token square */}
               <div
-                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex items-center justify-center text-white font-bold shadow-md cursor-pointer hover:opacity-80 ${
+                className={`w-28 h-28 rounded flex items-center justify-center text-white font-bold shadow-md cursor-pointer hover:opacity-80 relative overflow-hidden ${
                   currentToken && token.name === currentToken.name ? 'ring-4 ring-yellow-400' : ''
-                }`}
+                } ${!token.imageUrl ? getTokenColor(token, tokens.indexOf(token)) : 'bg-gray-200'}`}
                 onClick={() => onTokenClick(token)}
               >
-                <div className="text-2xl">{token.initiative}</div>
+                {/* Background image if available */}
+                {token.imageUrl && (
+                  <img
+                    src={token.imageUrl}
+                    alt={token.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+                {/* Initiative number positioned in top right */}
+                <div className={`absolute top-1 right-1 text-lg z-10 ${token.imageUrl ? 'bg-black bg-opacity-75 text-white px-1.5 py-0.5 rounded' : 'text-2xl'}`}>
+                  {token.initiative}
+                </div>
               </div>
               {/* HP bar below the square */}
               <div className="w-28 h-6 bg-gray-300 border border-black mt-1 relative overflow-hidden">
@@ -68,12 +79,23 @@ export default function TokenDisplay({ tokens, currentToken, getTokenColor, onTo
               </div>
               {/* Token square */}
               <div
-                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex items-center justify-center text-white font-bold shadow-md cursor-pointer hover:opacity-80 ${
+                className={`w-28 h-28 rounded flex items-center justify-center text-white font-bold shadow-md cursor-pointer hover:opacity-80 relative overflow-hidden ${
                   currentToken && token.name === currentToken.name ? 'ring-4 ring-yellow-400' : ''
-                }`}
+                } ${!token.imageUrl ? getTokenColor(token, tokens.indexOf(token)) : 'bg-gray-200'}`}
                 onClick={() => onTokenClick(token)}
               >
-                <div className="text-2xl">{token.initiative}</div>
+                {/* Background image if available */}
+                {token.imageUrl && (
+                  <img
+                    src={token.imageUrl}
+                    alt={token.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+                {/* Initiative number positioned in top right */}
+                <div className={`absolute top-1 right-1 text-lg z-10 ${token.imageUrl ? 'bg-black bg-opacity-75 text-white px-1.5 py-0.5 rounded' : 'text-2xl'}`}>
+                  {token.initiative}
+                </div>
               </div>
               {/* HP bar below the square */}
               <div className="w-28 h-6 bg-gray-300 border border-black mt-1 relative overflow-hidden">

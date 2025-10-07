@@ -27,6 +27,8 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
   const [totalHP, setTotalHP] = useState('');
   const [initiative, setInitiative] = useState('');
   const [ally, setAlly] = useState(true);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   // Populate form when token changes
   useEffect(() => {
@@ -36,8 +38,27 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
       setTotalHP(token.totalHP.toString());
       setInitiative(token.initiative.toString());
       setAlly(token.ally);
+      setImageUrl(token.imageUrl || '');
     }
   }, [token]);
+
+  /**
+   * Handles image file selection
+   * Converts the selected file to a data URL for display
+   */
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      // Convert file to data URL for preview and storage
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setImageUrl(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +96,7 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
     }
 
     // Update the token with new values
-    const updatedToken = new Token(name.trim(), totalHPValue, initiativeValue, ally, currentHPValue);
+    const updatedToken = new Token(name.trim(), totalHPValue, initiativeValue, ally, currentHPValue, imageUrl || undefined);
     onUpdateToken(updatedToken);
     onClose();
   };
@@ -202,6 +223,30 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
                 <span className="text-red-600 font-medium">Enemy</span>
               </label>
             </div>
+          </div>
+
+          {/* Image Upload Field */}
+          <div>
+            <label htmlFor="edit-image" className="block text-sm font-medium text-gray-700 mb-2">
+              Token Image (Optional)
+            </label>
+            <input
+              type="file"
+              id="edit-image"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {/* Image preview */}
+            {imageUrl && (
+              <div className="mt-2">
+                <img
+                  src={imageUrl}
+                  alt="Token preview"
+                  className="w-16 h-16 object-cover rounded border border-gray-300"
+                />
+              </div>
+            )}
           </div>
 
           {/* Action Buttons - Delete, Cancel, and Update */}

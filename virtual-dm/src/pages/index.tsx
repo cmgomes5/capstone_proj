@@ -100,8 +100,21 @@ export default function Home() {
               ←
             </button>
             
-            <div className={`w-16 h-16 ${getTokenColor(tokens[currentIndex], currentIndex)} rounded flex items-center justify-center text-white font-bold text-lg`}>
-              {tokens[currentIndex].initiative}
+            <div className={`w-16 h-16 rounded flex items-center justify-center text-white font-bold text-lg relative overflow-hidden ${
+              !tokens[currentIndex].imageUrl ? getTokenColor(tokens[currentIndex], currentIndex) : 'bg-gray-200'
+            }`}>
+              {/* Background image if available */}
+              {tokens[currentIndex].imageUrl && (
+                <img
+                  src={tokens[currentIndex].imageUrl}
+                  alt={tokens[currentIndex].name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
+              {/* Initiative number with background for readability */}
+              <div className={`absolute top-0.5 right-0.5 text-sm z-10 ${tokens[currentIndex].imageUrl ? 'bg-black bg-opacity-75 text-white px-1 py-0.5 rounded' : 'text-lg'}`}>
+                {tokens[currentIndex].initiative}
+              </div>
             </div>
             
             <button 
@@ -122,12 +135,26 @@ export default function Home() {
           {tokens.map((token, index) => (
             <div
               key={token.name}
-              className={`w-12 h-12 rounded cursor-pointer ${getTokenColor(token, index)} ${
+              className={`w-12 h-12 rounded cursor-pointer relative overflow-hidden ${
                 index === currentIndex 
                   ? 'ring-2 ring-gray-800' 
                   : 'hover:opacity-80'
-              }`}
-            />
+              } ${!token.imageUrl ? getTokenColor(token, index) : 'bg-gray-200'}`}
+              onClick={() => setCurrentIndex(index)}
+            >
+              {/* Background image if available */}
+              {token.imageUrl && (
+                <img
+                  src={token.imageUrl}
+                  alt={token.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
+              {/* Initiative number positioned in top right */}
+              <div className={`absolute top-0.5 right-0.5 text-xs z-10 ${token.imageUrl ? 'bg-black bg-opacity-75 text-white px-1 rounded' : 'text-sm text-white font-bold'}`}>
+                {token.initiative}
+              </div>
+            </div>
           ))}
         </div>
       </div>
