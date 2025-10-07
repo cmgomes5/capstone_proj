@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Token } from '../models/Token';
 import AddTokenModal from '../components/AddTokenModal';
+import EditTokenModal from '../components/EditTokenModal';
 import TokenDisplay from '../components/TokenDisplay';
 
 export default function Home() {
@@ -15,6 +16,8 @@ export default function Home() {
   const [tokens, setTokens] = useState<Token[]>([]); // Start with empty token list
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [tokenToEdit, setTokenToEdit] = useState<Token | null>(null);
 
   // Helper function to get color based on token properties
   const getTokenColor = (token: Token, index: number): string => {
@@ -27,6 +30,42 @@ export default function Home() {
       const updatedTokens = [...prevTokens, newToken];
       // Sort by initiative in descending order (highest to lowest)
       return updatedTokens.sort((a, b) => b.initiative - a.initiative);
+    });
+  };
+
+  // Function to handle token click for editing
+  const handleTokenClick = (token: Token) => {
+    setTokenToEdit(token);
+    setIsEditModalOpen(true);
+  };
+
+  // Function to update an existing token
+  const handleUpdateToken = (updatedToken: Token) => {
+    setTokens(prevTokens => {
+      const updatedTokens = prevTokens.map(token => 
+        token.name === tokenToEdit?.name ? updatedToken : token
+      );
+      // Sort by initiative in descending order (highest to lowest)
+      return updatedTokens.sort((a, b) => b.initiative - a.initiative);
+    });
+    // Update current index if needed
+    const newIndex = tokens.findIndex(token => token.name === updatedToken.name);
+    if (newIndex !== -1) {
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  // Function to delete a token
+  const handleDeleteToken = (tokenToDelete: Token) => {
+    setTokens(prevTokens => {
+      const filteredTokens = prevTokens.filter(token => token.name !== tokenToDelete.name);
+      // Adjust current index if necessary
+      if (currentIndex >= filteredTokens.length && filteredTokens.length > 0) {
+        setCurrentIndex(filteredTokens.length - 1);
+      } else if (filteredTokens.length === 0) {
+        setCurrentIndex(0);
+      }
+      return filteredTokens;
     });
   };
   
@@ -98,6 +137,7 @@ export default function Home() {
         tokens={tokens}
         currentToken={tokens.length > 0 ? tokens[currentIndex] : null}
         getTokenColor={getTokenColor}
+        onTokenClick={handleTokenClick}
       />
 
       {/* Add Token Button - Bottom Right */}
@@ -114,6 +154,18 @@ export default function Home() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddToken={handleAddToken}
+      />
+
+      {/* Edit Token Modal */}
+      <EditTokenModal
+        isOpen={isEditModalOpen}
+        token={tokenToEdit}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setTokenToEdit(null);
+        }}
+        onUpdateToken={handleUpdateToken}
+        onDeleteToken={handleDeleteToken}
       />
     </div>
   );

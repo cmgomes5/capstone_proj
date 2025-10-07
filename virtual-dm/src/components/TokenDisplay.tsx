@@ -4,6 +4,7 @@ interface TokenDisplayProps {
   tokens: Token[];
   currentToken: Token | null;
   getTokenColor: (token: Token, index: number) => string;
+  onTokenClick: (token: Token) => void;
 }
 
 /**
@@ -16,7 +17,7 @@ interface TokenDisplayProps {
  * Each token shows name, initiative, and current/total HP
  * The currently selected token is highlighted with a yellow ring
  */
-export default function TokenDisplay({ tokens, currentToken, getTokenColor }: TokenDisplayProps) {
+export default function TokenDisplay({ tokens, currentToken, getTokenColor, onTokenClick }: TokenDisplayProps) {
   return (
     <div className="w-5/6 flex flex-col">
       {/* Top half - Allies */}
@@ -31,9 +32,10 @@ export default function TokenDisplay({ tokens, currentToken, getTokenColor }: To
               </div>
               {/* Token square */}
               <div
-                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex items-center justify-center text-white font-bold shadow-md ${
+                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex items-center justify-center text-white font-bold shadow-md cursor-pointer hover:opacity-80 ${
                   currentToken && token.name === currentToken.name ? 'ring-4 ring-yellow-400' : ''
                 }`}
+                onClick={() => onTokenClick(token)}
               >
                 <div className="text-2xl">{token.initiative}</div>
               </div>
@@ -66,9 +68,10 @@ export default function TokenDisplay({ tokens, currentToken, getTokenColor }: To
               </div>
               {/* Token square */}
               <div
-                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex items-center justify-center text-white font-bold shadow-md ${
+                className={`w-28 h-28 ${getTokenColor(token, tokens.indexOf(token))} rounded flex items-center justify-center text-white font-bold shadow-md cursor-pointer hover:opacity-80 ${
                   currentToken && token.name === currentToken.name ? 'ring-4 ring-yellow-400' : ''
                 }`}
+                onClick={() => onTokenClick(token)}
               >
                 <div className="text-2xl">{token.initiative}</div>
               </div>
