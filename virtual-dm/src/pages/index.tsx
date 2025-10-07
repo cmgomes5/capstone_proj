@@ -19,6 +19,24 @@ export default function Home() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [tokenToEdit, setTokenToEdit] = useState<Token | null>(null);
 
+  // Auto-advance to next alive token if current token dies
+  useEffect(() => {
+    if (tokens.length > 0 && !tokens[currentIndex].ally && tokens[currentIndex].currentHP <= 0) {
+      // Current token is a dead enemy, find next alive token
+      let newIndex = currentIndex;
+      let attempts = 0;
+      do {
+        newIndex = newIndex === tokens.length - 1 ? 0 : newIndex + 1;
+        attempts++;
+      } while (attempts < tokens.length && !tokens[newIndex].ally && tokens[newIndex].currentHP <= 0);
+      
+      // If we found an alive token, switch to it
+      if (attempts < tokens.length) {
+        setCurrentIndex(newIndex);
+      }
+    }
+  }, [tokens, currentIndex]);
+
   // Helper function to get color based on token properties
   const getTokenColor = (token: Token, index: number): string => {
     return availableColors[index % availableColors.length];
@@ -71,16 +89,24 @@ export default function Home() {
   
   const goToPrevious = () => {
     if (tokens.length === 0) return;
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? tokens.length - 1 : prevIndex - 1
-    );
+    
+    let newIndex = currentIndex;
+    do {
+      newIndex = newIndex === 0 ? tokens.length - 1 : newIndex - 1;
+    } while (newIndex !== currentIndex && !tokens[newIndex].ally && tokens[newIndex].currentHP <= 0);
+    
+    setCurrentIndex(newIndex);
   };
   
   const goToNext = () => {
     if (tokens.length === 0) return;
-    setCurrentIndex((prevIndex) => 
-      prevIndex === tokens.length - 1 ? 0 : prevIndex + 1
-    );
+    
+    let newIndex = currentIndex;
+    do {
+      newIndex = newIndex === tokens.length - 1 ? 0 : newIndex + 1;
+    } while (newIndex !== currentIndex && !tokens[newIndex].ally && tokens[newIndex].currentHP <= 0);
+    
+    setCurrentIndex(newIndex);
   };
 
   return (
@@ -91,7 +117,7 @@ export default function Home() {
         <div className="h-16"></div>
         
         {/* Navigation arrows and squares */}
-        {tokens.length > 0 ? (
+        {tokens.length > 0 && tokens.some(token => token.ally || token.currentHP > 0) ? (
           <div className="flex items-center space-x-2 mb-4">
             <button 
               onClick={goToPrevious}
@@ -132,30 +158,35 @@ export default function Home() {
         
         {/* List of all tokens */}
         <div className="flex flex-col space-y-2 flex-1 overflow-y-auto">
-          {tokens.map((token, index) => (
-            <div
-              key={token.name}
-              className={`w-12 h-12 rounded cursor-pointer relative overflow-hidden ${
-                index === currentIndex 
-                  ? 'ring-2 ring-gray-800' 
-                  : 'hover:opacity-80'
-              } ${!token.imageUrl ? getTokenColor(token, index) : 'bg-gray-200'}`}
-              onClick={() => setCurrentIndex(index)}
-            >
-              {/* Background image if available */}
-              {token.imageUrl && (
-                <img
-                  src={token.imageUrl}
-                  alt={token.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              )}
-              {/* Initiative number positioned in top right */}
-              <div className={`absolute top-0.5 right-0.5 text-xs z-10 ${token.imageUrl ? 'bg-black bg-opacity-75 text-white px-1 rounded' : 'text-sm text-white font-bold'}`}>
-                {token.initiative}
-              </div>
-            </div>
-          ))}
+          {tokens
+            .filter(token => token.ally || token.currentHP > 0) // Show allies always, enemies only if alive
+            .map((token, index) => {
+              const originalIndex = tokens.indexOf(token);
+              return (
+                <div
+                  key={token.name}
+                  className={`w-12 h-12 rounded cursor-pointer relative overflow-hidden ${
+                    originalIndex === currentIndex 
+                      ? 'ring-2 ring-gray-800' 
+                      : 'hover:opacity-80'
+                  } ${!token.imageUrl ? getTokenColor(token, originalIndex) : 'bg-gray-200'}`}
+                  onClick={() => setCurrentIndex(originalIndex)}
+                >
+                  {/* Background image if available */}
+                  {token.imageUrl && (
+                    <img
+                      src={token.imageUrl}
+                      alt={token.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+                  {/* Initiative number positioned in top right */}
+                  <div className={`absolute top-0.5 right-0.5 text-xs z-10 ${token.imageUrl ? 'bg-black bg-opacity-75 text-white px-1 rounded' : 'text-sm text-white font-bold'}`}>
+                    {token.initiative}
+                  </div>
+                </div>
+              );
+            })}
         </div>
       </div>
       
