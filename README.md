@@ -5,9 +5,9 @@
 A companion tool for DMs who like to play in person, 
 but hate managing turn order on pencil and paper.
 
-## Running Locally
+# Running Locally
 
-### Dependencies
+## Dependencies
 
 - Node.js
 - Docker
@@ -16,7 +16,7 @@ but hate managing turn order on pencil and paper.
 If you are using a Mac environment you can install these
 dependencies using Homebrew and the command `brew bundle`
 
-### Running
+## Running
 
 To run for local development you can use `task run-dev`
 
