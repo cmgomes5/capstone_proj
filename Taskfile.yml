@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  run-dev:
+    desc: "Run the Next.js development server"
+    dir: virtual-dm
+    cmd: npm run dev
+    
+  build:
+    desc: "Build the Docker image for the Virtual DM application"
+    cmd: docker build -t virtual-dm .
+    
+  docker-run:
+    desc: "Build and run the Docker container"
+    deps: [build]
+    cmd: docker run -p 3000:3000 virtual-dm
