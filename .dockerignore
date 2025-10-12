@@ -1,0 +1,69 @@
+# Dependencies
+virtual-dm/node_modules
+virtual-dm/npm-debug.log*
+virtual-dm/yarn-debug.log*
+virtual-dm/yarn-error.log*
+
+# Next.js build output
+virtual-dm/.next
+virtual-dm/out
+
+# Environment variables
+virtual-dm/.env
+virtual-dm/.env.local
+virtual-dm/.env.development.local
+virtual-dm/.env.test.local
+virtual-dm/.env.production.local
+
+# Vercel
+virtual-dm/.vercel
+
+# TypeScript
+virtual-dm/*.tsbuildinfo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+
+# Documentation
+README.md
+*.md
+
+# Test files
+virtual-dm/__tests__
+virtual-dm/*.test.js
+virtual-dm/*.test.ts
+virtual-dm/*.test.tsx
+virtual-dm/*.spec.js
+virtual-dm/*.spec.ts
+virtual-dm/*.spec.tsx
+
+# Coverage reports
+virtual-dm/coverage
+
+# Logs
+logs
+*.log
+
+# Exclude other directories that aren't part of the virtual-dm app
+*
+!virtual-dm/
