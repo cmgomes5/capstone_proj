@@ -2,7 +2,8 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   ci-cd:
@@ -12,11 +13,23 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 #v5
     
+    - name: Install tooling via Arkade
+      uses: alexellis/arkade-get@9718b1694fa1db91045e0b5ba199732cb18b4387
+      with:
+        #kubectl: v1.33.1
+        #tilt: v0.35.0
+        #k3d: v5.8.3
+        task: v3.44.0
+
     - name: Build
-      run: echo "build"
-    
-    - name: Test
-      run: echo "test"
+      run: task build
+
+    - name: Run Docker Container
+      run: task docker-run-ci
+
+    - name: Check if app is accessible
+      run: |
+        curl -f http://localhost:3000 || exit 1
     
     - name: Deploy
       run: echo "deploy"

@@ -20,3 +20,8 @@ tasks:
     desc: "Build and run the Docker container"
     deps: [build]
     cmd: docker run -p 3000:3000 virtual-dm
+    
+  docker-run-ci:
+    desc: "Build and run the Docker container in the background"
+    deps: [build]
+    cmd: docker run -d --name virtual-dm-app -p 3000:3000 --restart unless-stopped virtual-dm
