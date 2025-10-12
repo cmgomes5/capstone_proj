@@ -1,8 +1,14 @@
 version: '3'
 
 tasks:
+  install-deps:
+    desc: "Install Node.js dependencies for development"
+    dir: virtual-dm
+    cmd: npm install
+
   run-dev:
     desc: "Run the Next.js development server"
+    deps: [install-deps]
     dir: virtual-dm
     cmd: npm run dev
     
