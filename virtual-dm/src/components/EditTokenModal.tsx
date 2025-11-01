@@ -85,10 +85,7 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
       return;
     }
     
-    if (currentHPValue > totalHPValue) {
-      alert('Current HP cannot exceed Total HP');
-      return;
-    }
+    // Removed check: Current HP can now exceed Total HP
     
     if (isNaN(initiativeValue)) {
       alert('Initiative must be a valid number');
@@ -156,7 +153,7 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter current HP"
               min="0"
-              max="999"
+              max="9999"
             />
           </div>
 
@@ -173,7 +170,7 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter total HP"
               min="1"
-              max="999"
+              max="9999"
             />
           </div>
 

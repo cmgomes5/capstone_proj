@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Token } from '../models/Token';
 import AddTokenModal from '../components/AddTokenModal';
 import EditTokenModal from '../components/EditTokenModal';
+import HPEditModal from '../components/HPEditModal';
 import TokenDisplay from '../components/TokenDisplay';
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHPEditModalOpen, setIsHPEditModalOpen] = useState(false);
   const [tokenToEdit, setTokenToEdit] = useState<Token | null>(null);
 
   // Auto-advance to next alive token if current token dies
@@ -51,10 +53,36 @@ export default function Home() {
     });
   };
 
-  // Function to handle token click for editing
+  // Function to handle token click for HP editing
   const handleTokenClick = (token: Token) => {
     setTokenToEdit(token);
+    setIsHPEditModalOpen(true);
+  };
+
+  // Function to open full edit modal from HP modal
+  const handleOpenFullEdit = (token: Token) => {
+    setTokenToEdit(token);
     setIsEditModalOpen(true);
+  };
+
+  // Function to update only HP
+  const handleUpdateHP = (token: Token, newHP: number) => {
+    setTokens(prevTokens => {
+      return prevTokens.map(t => {
+        if (t.name === token.name) {
+          const updatedToken = new Token(
+            t.name,
+            t.totalHP,
+            t.initiative,
+            t.ally,
+            newHP,
+            t.imageUrl
+          );
+          return updatedToken;
+        }
+        return t;
+      });
+    });
   };
 
   // Function to update an existing token
@@ -212,6 +240,20 @@ export default function Home() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddToken={handleAddToken}
+      />
+
+      {/* HP Edit Modal */}
+      <HPEditModal
+        isOpen={isHPEditModalOpen}
+        token={tokenToEdit}
+        tokenIndex={tokenToEdit ? tokens.findIndex(t => t.name === tokenToEdit.name) : 0}
+        onClose={() => {
+          setIsHPEditModalOpen(false);
+          setTokenToEdit(null);
+        }}
+        onUpdateHP={handleUpdateHP}
+        onOpenFullEdit={handleOpenFullEdit}
+        getTokenColor={getTokenColor}
       />
 
       {/* Edit Token Modal */}
