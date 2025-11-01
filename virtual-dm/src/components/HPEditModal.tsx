@@ -62,9 +62,17 @@ export default function HPEditModal({ isOpen, token, tokenIndex, onClose, onUpda
     
     if (!isNaN(newHP) && newHP >= 0) {
       // Play appropriate audio based on HP change
-      if (newHP > oldHP) {
+      if (newHP === 0 && oldHP > 0) {
+        // Token died - play death sound
+        playAudio('dead.mp3');
+      } else if (newHP > 0 && oldHP === 0) {
+        // Token revived - play revival sound
+        playAudio('revive.mp3');
+      } else if (newHP > oldHP) {
+        // HP increased - play heal sound
         playAudio('heal.mp3');
-      } else if (newHP < oldHP) {
+      } else if (newHP < oldHP && newHP > 0) {
+        // HP decreased but still alive - play damage sound
         playAudio('damage.mp3');
       }
       // No audio if HP stays the same
