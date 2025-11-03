@@ -47,3 +47,6 @@ next-env.d.ts
 
 # mac crap
 .DS_Store
+
+# Custom tokens directory - user-specific content
+/virtual-dm/public/tokens/custom/

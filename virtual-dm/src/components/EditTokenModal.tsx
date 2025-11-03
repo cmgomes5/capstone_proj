@@ -99,9 +99,7 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
   };
 
   const handleDelete = () => {
-    if (!token) return;
-    
-    if (confirm(`Are you sure you want to delete "${token.name}"?`)) {
+    if (token && window.confirm(`Are you sure you want to delete "${token.name}"?`)) {
       onDeleteToken(token);
       onClose();
     }
@@ -109,6 +107,61 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
 
   const handleCancel = () => {
     onClose();
+  };
+
+  const handleSaveToCustom = () => {
+    if (!token) return;
+    
+    // Validation
+    if (!name.trim()) {
+      alert('Name is required');
+      return;
+    }
+    
+    const currentHPValue = parseInt(currentHP);
+    const totalHPValue = parseInt(totalHP);
+    const initiativeValue = parseInt(initiative);
+    
+    if (isNaN(totalHPValue) || totalHPValue <= 0) {
+      alert('Total HP must be a positive number');
+      return;
+    }
+    
+    if (isNaN(currentHPValue) || currentHPValue < 0) {
+      alert('Current HP must be a non-negative number');
+      return;
+    }
+
+    // Create token data (without initiative as per your requirements)
+    const tokenData = {
+      name: name.trim(),
+      totalHP: totalHPValue,
+      ally: ally,
+      ...(imageUrl && { imageUrl })
+    };
+
+    // Create filename from token name (sanitized)
+    const sanitizedName = name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const filename = `${sanitizedName}.json`;
+
+    // Create downloadable file
+    const jsonContent = JSON.stringify([tokenData], null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert(`Token saved as ${filename}!\n\nTo use this token:\n1. Place the file in /public/tokens/custom/\n2. Add "${filename}" to /public/tokens/custom/catalog.txt`);
   };
 
   if (!isOpen || !token) return null;
@@ -247,30 +300,42 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
           </div>
 
           {/* Action Buttons - Delete, Cancel, and Update */}
-          <div className="flex space-x-3 pt-4">
-            {/* Delete button - removes token */}
+          <div className="flex flex-col space-y-3 pt-4">
+            {/* Top row - Save to Custom button */}
             <button
               type="button"
-              onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              onClick={handleSaveToCustom}
+              className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Delete
+              Save to Custom
             </button>
-            {/* Cancel button - closes modal without changes */}
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Cancel
-            </button>
-            {/* Update button - saves changes */}
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Update
-            </button>
+            
+            {/* Bottom row - Original buttons */}
+            <div className="flex space-x-3">
+              {/* Delete button - removes token */}
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                Delete
+              </button>
+              {/* Cancel button - closes modal without changes */}
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              {/* Update button - saves changes */}
+              <button
+                type="submit"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Update
+              </button>
+            </div>
           </div>
         </form>
       </div>

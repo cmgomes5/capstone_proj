@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Token } from '../models/Token';
 import AddTokenModal from '../components/AddTokenModal';
+import AddTokenMenu from '../components/AddTokenMenu';
+import LoadTokenModal from '../components/LoadTokenModal';
 import EditTokenModal from '../components/EditTokenModal';
 import HPEditModal from '../components/HPEditModal';
 import TokenDisplay from '../components/TokenDisplay';
@@ -16,7 +18,9 @@ export default function Home() {
 
   const [tokens, setTokens] = useState<Token[]>([]); // Start with empty token list
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isHPEditModalOpen, setIsHPEditModalOpen] = useState(false);
   const [tokenToEdit, setTokenToEdit] = useState<Token | null>(null);
@@ -112,6 +116,25 @@ export default function Home() {
         setCurrentIndex(0);
       }
       return filteredTokens;
+    });
+  };
+
+  // Function to handle create new token
+  const handleCreateNew = () => {
+    setIsAddModalOpen(true);
+  };
+
+  // Function to handle load existing token
+  const handleLoadExisting = () => {
+    setIsLoadModalOpen(true);
+  };
+
+  // Function to handle loading a token from JSON
+  const handleLoadToken = (token: Token) => {
+    setTokens(prevTokens => {
+      const updatedTokens = [...prevTokens, token];
+      // Sort by initiative in descending order (highest to lowest)
+      return updatedTokens.sort((a, b) => b.initiative - a.initiative);
     });
   };
   
@@ -228,18 +251,33 @@ export default function Home() {
 
       {/* Add Token Button - Bottom Right */}
       <button
-        onClick={() => setIsAddModalOpen(true)}
+        onClick={() => setIsAddMenuOpen(true)}
         className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-bold transition-colors z-40"
-        title="Add New Token"
+        title="Add Token"
       >
         +
       </button>
+
+      {/* Add Token Menu */}
+      <AddTokenMenu
+        isOpen={isAddMenuOpen}
+        onClose={() => setIsAddMenuOpen(false)}
+        onCreateNew={handleCreateNew}
+        onLoadExisting={handleLoadExisting}
+      />
 
       {/* Add Token Modal */}
       <AddTokenModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddToken={handleAddToken}
+      />
+
+      {/* Load Token Modal */}
+      <LoadTokenModal
+        isOpen={isLoadModalOpen}
+        onClose={() => setIsLoadModalOpen(false)}
+        onLoadToken={handleLoadToken}
       />
 
       {/* HP Edit Modal */}

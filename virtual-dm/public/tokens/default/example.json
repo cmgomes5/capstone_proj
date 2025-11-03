@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Example",
+    "totalHP": 10,
+    "ally": true,
+    "imageUrl": "/tokens/default/img/default.png"
+  }
+]
