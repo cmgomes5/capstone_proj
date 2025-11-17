@@ -1,6 +1,6 @@
 {
   "name": "virtual-dm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A D&D Virtual Dungeon Master combat tracker application",
   "main": "index.js",
   "scripts": {
@@ -10,8 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/cmgomes5/capstone_proj.git"
   },
-  "keywords": [
-  ],
+  "keywords": [],
   "author": "Conor Gomes",
   "license": "MIT",
   "bugs": {
