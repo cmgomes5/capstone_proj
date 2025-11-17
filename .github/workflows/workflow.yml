@@ -21,8 +21,14 @@ jobs:
         #k3d: v5.8.3
         task: v3.44.0
 
+    - name: Install Playwright browsers and dependencies
+      run: |
+        cd virtual-dm
+        npm install
+        npx playwright install --with-deps
+
     - name: Run Tests
-      run: task test
+      run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" task test
 
     - name: Build
       run: task build
