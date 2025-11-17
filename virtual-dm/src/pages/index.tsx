@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
 import { Token } from '../models/Token';
 import AddTokenModal from '../components/AddTokenModal';
 import AddTokenMenu from '../components/AddTokenMenu';
@@ -161,7 +162,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <>
+      <Head>
+        <title>Virtual DM - Combat Tracker</title>
+        <meta name="description" content="A companion tool for DMs who like to play in person, but hate managing turn order on pencil and paper." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <div className="flex min-h-screen">
       {/* Left side - smaller */}
       <div className="w-1/6 flex flex-col items-center bg-gray-100 p-4">
         {/* Top buffer space */}
@@ -305,6 +313,7 @@ export default function Home() {
         onUpdateToken={handleUpdateToken}
         onDeleteToken={handleDeleteToken}
       />
-    </div>
+      </div>
+    </>
   );
 }

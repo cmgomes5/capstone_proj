@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Custom tokens directory - user-specific content
 /virtual-dm/public/tokens/custom/
+
+playwright-report/
+test-results/

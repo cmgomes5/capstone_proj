@@ -24,3 +24,9 @@ For a proper build of the Docker container you can use `task docker-run`
 
 If you want to avoid installing Docker and Task you can use `npm run dev`
 or `npm build && npm run start`
+
+## Testing
+
+Tests can be run with `task test`.
+
+Testing uses Playwright.

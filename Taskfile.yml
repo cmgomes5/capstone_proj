@@ -25,3 +25,11 @@ tasks:
     desc: "Build and run the Docker container in the background"
     deps: [build]
     cmd: docker run -d --name virtual-dm-app -p 3000:3000 --restart unless-stopped virtual-dm
+
+  test:
+    desc: "Run the complete Playwright test suite"
+    deps: [install-deps]
+    dir: virtual-dm
+    cmds:
+      - npx playwright install
+      - npm run test
