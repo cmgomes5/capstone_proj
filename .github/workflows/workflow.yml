@@ -1,12 +1,15 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  ci-cd:
+  test:
     runs-on: ubuntu-latest
     
     steps:
@@ -30,27 +33,5 @@ jobs:
     - name: Run Tests
       run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" task test
 
-    - name: Build
+    - name: Build Check
       run: task build
-
-    - name: Run Docker Container
-      run: task docker-run-ci
-
-    # - name: Check if app is accessible
-    #   run: |
-    #     for i in {1..5}; do
-    #       echo "Attempt $i/5: Checking if app is accessible..."
-    #       if curl -f http://localhost:3000 > /dev/null 2>&1; then
-    #         echo "App is accessible!"
-    #         exit 0
-    #       fi
-    #       if [ $i -lt 5 ]; then
-    #         echo "App not ready, waiting 5 seconds..."
-    #         sleep 5
-    #       fi
-    #     done
-    #     echo "App failed to become accessible after 5 attempts"
-    #     exit 1
-    
-    - name: Deploy
-      run: echo "deploy"
