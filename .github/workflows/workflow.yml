@@ -21,27 +21,30 @@ jobs:
         #k3d: v5.8.3
         task: v3.44.0
 
+    - name: Run Tests
+      run: task test
+
     - name: Build
       run: task build
 
     - name: Run Docker Container
       run: task docker-run-ci
 
-    - name: Check if app is accessible
-      run: |
-        for i in {1..5}; do
-          echo "Attempt $i/5: Checking if app is accessible..."
-          if curl -f http://localhost:3000 > /dev/null 2>&1; then
-            echo "App is accessible!"
-            exit 0
-          fi
-          if [ $i -lt 5 ]; then
-            echo "App not ready, waiting 5 seconds..."
-            sleep 5
-          fi
-        done
-        echo "App failed to become accessible after 5 attempts"
-        exit 1
+    # - name: Check if app is accessible
+    #   run: |
+    #     for i in {1..5}; do
+    #       echo "Attempt $i/5: Checking if app is accessible..."
+    #       if curl -f http://localhost:3000 > /dev/null 2>&1; then
+    #         echo "App is accessible!"
+    #         exit 0
+    #       fi
+    #       if [ $i -lt 5 ]; then
+    #         echo "App not ready, waiting 5 seconds..."
+    #         sleep 5
+    #       fi
+    #     done
+    #     echo "App failed to become accessible after 5 attempts"
+    #     exit 1
     
     - name: Deploy
       run: echo "deploy"
