@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-dm
+  labels:
+    app: virtual-dm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: virtual-dm
+  template:
+    metadata:
+      labels:
+        app: virtual-dm
+    spec:
+      containers:
+      - name: virtual-dm
+        image: virtual-dm:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10

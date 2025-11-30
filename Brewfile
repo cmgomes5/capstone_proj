@@ -9,3 +9,12 @@ brew "go-task"
 
 # Docker for containerization
 cask "docker"
+
+# Kubernetes tools
+brew "kubectl"
+
+# k3d for local Kubernetes clusters
+brew "k3d"
+
+# Tilt for Kubernetes development workflow
+brew "tilt"

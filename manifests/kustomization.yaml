@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+commonLabels:
+  app: virtual-dm
+  version: v1
+
+images:
+  - name: virtual-dm
+    newName: virtual-dm-registry:5000/virtual-dm
