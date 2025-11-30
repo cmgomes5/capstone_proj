@@ -1,0 +1,88 @@
+name: Release Please
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  version:
+    name: Create Semantic Versioning
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --save-dev semantic-release@23 @semantic-release/changelog@6 @semantic-release/git@10 @semantic-release/exec@6 conventional-changelog-conventionalcommits@7
+      - name: Release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Store the current latest tag before running semantic-release
+          BEFORE_TAG=$(git describe --tags --abbrev=0 --match="v*.*.*" 2>/dev/null || echo "")
+          
+          # Run semantic-release
+          npx semantic-release@23.0.7
+          
+          # Get the latest tag after semantic-release
+          AFTER_TAG=$(git describe --tags --abbrev=0 --match="v*.*.*" 2>/dev/null || echo "")
+          
+          # Only output version if a new tag was created
+          if [ -n "$AFTER_TAG" ] && [ "$BEFORE_TAG" != "$AFTER_TAG" ]; then
+            echo "version=${AFTER_TAG#v}" >> $GITHUB_OUTPUT
+            echo "New version created: ${AFTER_TAG#v}"
+          else
+            echo "No new version created"
+          fi
+  
+  push-image:
+    name: Push Image to ECR in Dev
+    needs: version
+    if: needs.version.outputs.version != ''
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 #v5.0.0
+
+      - name: Install tooling via Arkade
+        uses: alexellis/arkade-get@9718b1694fa1db91045e0b5ba199732cb18b4387
+        with:
+          task: v3.44.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image using task
+        run: task build
+
+      - name: Tag and push Docker image
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          IMAGE_NAME="ghcr.io/${{ github.repository }}"
+          docker tag virtual-dm ${IMAGE_NAME}:${VERSION}
+          docker push ${IMAGE_NAME}:${VERSION}
