@@ -6,7 +6,7 @@ load('ext://restart_process', 'docker_build_with_restart')
 
 # Configuration
 app_name = 'virtual-dm'
-registry = 'virtual-dm-registry:5000'
+registry = 'localhost:5000'
 image_name = registry + '/' + app_name
 
 # Configure registry settings for k3d

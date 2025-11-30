@@ -11,4 +11,4 @@ commonLabels:
 
 images:
   - name: virtual-dm
-    newName: virtual-dm-registry:5000/virtual-dm
+    newName: localhost:5000/virtual-dm
