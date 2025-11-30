@@ -24,6 +24,12 @@ jobs:
         k3d: v5.8.3
         task: v3.44.0
 
+    - name: Build Check
+      run: task build
+
+    - name: Tilt Check
+      run: task tilt-ci
+
     - name: Install Playwright browsers and dependencies
       run: |
         cd virtual-dm
@@ -32,12 +38,6 @@ jobs:
 
     - name: Run Tests
       run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" task test
-
-    - name: Build Check
-      run: task build
-
-    - name: Tilt Check
-      run: task tilt-ci
 
   trigger-deploy:
     name: Deploy
