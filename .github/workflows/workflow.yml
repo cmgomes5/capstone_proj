@@ -35,3 +35,12 @@ jobs:
 
     - name: Build Check
       run: task build
+
+  trigger-deploy:
+    name: Deploy with Terraform to Dev
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    needs: [test]
+    uses: ./.github/workflows/release.yml

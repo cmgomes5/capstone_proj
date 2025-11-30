@@ -2,10 +2,6 @@ name: Release Please
 
 on:
   workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
 
 permissions:
   contents: write
