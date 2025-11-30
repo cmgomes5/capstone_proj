@@ -48,7 +48,3 @@ k8s_resource(
     'virtual-dm',
     labels=['app'],
 )
-
-print("🎲 Virtual DM Tilt Configuration Loaded!")
-print("📝 Access your D&D Combat Tracker at: http://localhost:3000")
-print("🔧 Use 'tilt down' to stop all resources")
