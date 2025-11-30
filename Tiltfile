@@ -43,13 +43,6 @@ k8s_resource(
     resource_deps=[],
 )
 
-# Set up local development URL
-local_resource(
-    'virtual-dm-url',
-    cmd='echo "Virtual DM available at: http://localhost:3000"',
-    resource_deps=['virtual-dm'],
-)
-
 # Optional: Add a resource to show logs
 k8s_resource(
     'virtual-dm',
