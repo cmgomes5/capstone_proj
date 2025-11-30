@@ -53,3 +53,23 @@ tasks:
           fi
       - cmd: kubectl config use-context k3d-virtual-dm
       - tilt up
+
+  tilt-ci:
+    desc: Load Virtual DM Tilt Cluster with local build (CI mode)
+    env:
+      KUBECONFIG: .kube/k3dconfig
+    cmds:
+      - cmd: mkdir -p .kube
+      - cmd: |
+          echo "Looking for virtual-dm cluster..."
+          cluster=$(k3d cluster ls --no-headers virtual-dm 2> /dev/null | awk '{print $1}')
+          if [[ "$cluster" && $cluster = "virtual-dm" ]]; then
+            echo "virtual-dm cluster present"
+            k3d kubeconfig merge -s virtual-dm -o .kube/k3dconfig --overwrite
+          else
+            echo "not present... creating virtual-dm cluster"
+            k3d cluster create virtual-dm --registry-create virtual-dm-registry:0.0.0.0:5000 1> /dev/null
+            k3d kubeconfig merge -s virtual-dm -o .kube/k3dconfig --overwrite
+          fi
+      - cmd: kubectl config use-context k3d-virtual-dm
+      - tilt ci

@@ -19,9 +19,9 @@ jobs:
     - name: Install tooling via Arkade
       uses: alexellis/arkade-get@9718b1694fa1db91045e0b5ba199732cb18b4387
       with:
-        #kubectl: v1.33.1
-        #tilt: v0.35.0
-        #k3d: v5.8.3
+        kubectl: v1.33.1
+        tilt: v0.35.0
+        k3d: v5.8.3
         task: v3.44.0
 
     - name: Install Playwright browsers and dependencies
@@ -35,6 +35,9 @@ jobs:
 
     - name: Build Check
       run: task build
+
+    - name: Tilt Check
+      run: task tilt-ci
 
   trigger-deploy:
     name: Deploy
