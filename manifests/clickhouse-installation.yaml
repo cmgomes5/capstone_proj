@@ -1,0 +1,63 @@
+---
+apiVersion: clickhouse.altinity.com/v1
+kind: ClickHouseInstallation
+metadata:
+  name: virtual-dm-clickhouse
+spec:
+  defaults:
+    templates:
+      dataVolumeClaimTemplate: data-volume-template
+      logVolumeClaimTemplate: log-volume-template
+      podTemplate: clickhouse-pod-template
+  configuration:
+    users:
+      default/password: ""
+      default/profile: default
+      default/networks/ip: ::/0
+      webhook/password: demo
+      webhook/profile: default
+      webhook/networks/ip: ::/0
+    clusters:
+      - name: clickhouse
+        layout:
+          shardsCount: 1
+          replicasCount: 1
+  templates:
+    podTemplates:
+      - name: clickhouse-pod-template
+        spec:
+          containers:
+            - name: clickhouse
+              image: clickhouse/clickhouse-server:25.1
+              livenessProbe:
+                tcpSocket:
+                  port: 9000
+                initialDelaySeconds: 40
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 3
+              readinessProbe:
+                exec:
+                  command:
+                    - /bin/bash
+                    - -c
+                    - clickhouse-client --query 'SELECT 1' --connect_timeout=3 --receive_timeout=3
+                initialDelaySeconds: 40
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 3
+    volumeClaimTemplates:
+      - name: data-volume-template
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+      - name: log-volume-template
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
