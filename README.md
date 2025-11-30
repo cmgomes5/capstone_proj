@@ -11,18 +11,22 @@ but hate managing turn order on pencil and paper.
 
 - Node.js
 - Docker
-- Taskfile
+- Task
+- Tilt
+- K3d
 
 If you are using a Mac environment you can install these
 dependencies using Homebrew and the command `brew bundle`
 
 ## Running
 
+Running with Manifests using Tilt use `task tilt`
+
 To run for local development you can use `task run-dev`
 
 For a proper build of the Docker container you can use `task docker-run`
 
-If you want to avoid installing Docker and Task you can use `npm run dev`
+If you want to avoid installing Docker, Task, Tilt, and K3d you can use `npm run dev`
 or `npm build && npm run start`
 
 ## Testing
