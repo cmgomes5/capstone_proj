@@ -37,7 +37,7 @@ jobs:
       run: task build
 
   trigger-deploy:
-    name: Deploy with Terraform to Dev
+    name: Deploy
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: write

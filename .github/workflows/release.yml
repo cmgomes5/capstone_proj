@@ -1,4 +1,4 @@
-name: Release Please
+name: Release
 
 on:
   workflow_call:
@@ -49,13 +49,14 @@ jobs:
           fi
   
   push-image:
-    name: Push Image to ECR in Dev
+    name: Push Image to GHCR
     needs: version
     if: needs.version.outputs.version != ''
     permissions:
       contents: read
       id-token: write
       pull-requests: write
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
