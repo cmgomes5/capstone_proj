@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Dragon",
+    "totalHP": 200,
+    "ally": false,
+    "imageUrl": "/tokens/default/img/dragon.png"
+  },
+  {
+    "name": "Elf",
+    "totalHP": 35,
+    "ally": true,
+    "imageUrl": "/tokens/default/img/elf.png"
+  },
+  {
+    "name": "Goblin",
+    "totalHP": 5,
+    "ally": false,
+    "imageUrl": "/tokens/default/img/goblin.png"
+  },
+  {
+    "name": "Guard",
+    "totalHP": 25,
+    "ally": true,
+    "imageUrl": "/tokens/default/img/guard.png"
+  },
+  {
+    "name": "Ogre",
+    "totalHP": 75,
+    "ally": false,
+    "imageUrl": "/tokens/default/img/ogre.png"
+  },
+  {
+    "name": "Wizard",
+    "totalHP": 40,
+    "ally": true,
+    "imageUrl": "/tokens/default/img/wizard.png"
+  }
+]
