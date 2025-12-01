@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Token } from '../models/Token';
+import { loadAllTokens, TokenData } from '../services/tokenService';
 
-interface TokenData {
-  name: string;
-  totalHP: number;
-  ally: boolean;
-  imageUrl?: string;
-}
 
 interface LoadTokenModalProps {
   isOpen: boolean;
@@ -26,6 +21,7 @@ export default function LoadTokenModal({ isOpen, onClose, onLoadToken }: LoadTok
   const [customTokens, setCustomTokens] = useState<TokenData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sources, setSources] = useState<{ clickhouse: boolean; files: boolean }>({ clickhouse: false, files: false });
 
   const tabs = [
     { id: 'default' as const, name: 'Default', tokens: defaultTokens },
@@ -35,72 +31,35 @@ export default function LoadTokenModal({ isOpen, onClose, onLoadToken }: LoadTok
   // Load tokens when modal opens
   useEffect(() => {
     if (isOpen) {
-      loadAllTokens();
+      loadTokensFromAllSources();
     }
   }, [isOpen]);
 
-  const loadTokensFromDirectory = async (directory: 'default' | 'custom'): Promise<TokenData[]> => {
-    try {
-      // Load catalog for this directory
-      const catalogResponse = await fetch(`/tokens/${directory}/catalog.txt`);
-      if (!catalogResponse.ok) {
-        console.warn(`No catalog found for ${directory} directory`);
-        return [];
-      }
-      
-      const catalogText = await catalogResponse.text();
-      const tokenFiles: string[] = catalogText
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0 && !line.startsWith('#'));
-      
-      const tokens: TokenData[] = [];
-      
-      // Load each token file from this directory
-      for (const filename of tokenFiles) {
-        try {
-          const response = await fetch(`/tokens/${directory}/${filename}`);
-          if (response.ok) {
-            const data: TokenData[] = await response.json();
-            tokens.push(...data);
-          } else {
-            console.warn(`Failed to load ${directory}/${filename}: ${response.statusText}`);
-          }
-        } catch (fileError) {
-          console.warn(`Error loading ${directory}/${filename}:`, fileError);
-          // Continue loading other files even if one fails
-        }
-      }
-      
-      // Sort tokens alphabetically by name
-      return tokens.sort((a, b) => a.name.localeCompare(b.name));
-    } catch (dirError) {
-      console.warn(`Error loading ${directory} directory:`, dirError);
-      return [];
-    }
-  };
 
-  const loadAllTokens = async () => {
+  const loadTokensFromAllSources = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // Load tokens from both directories
-      const [defaultTokensData, customTokensData] = await Promise.all([
-        loadTokensFromDirectory('default'),
-        loadTokensFromDirectory('custom')
-      ]);
+      const result = await loadAllTokens();
       
-      setDefaultTokens(defaultTokensData);
-      setCustomTokens(customTokensData);
+      setDefaultTokens(result.tokens.default);
+      setCustomTokens(result.tokens.custom);
+      setSources(result.sources);
       
-      if (defaultTokensData.length === 0 && customTokensData.length === 0) {
-        setError('No tokens found in any directory');
+      const totalTokens = result.tokens.default.length + result.tokens.custom.length;
+      
+      if (totalTokens === 0) {
+        setError('No tokens found from any source');
+      } else if (result.error) {
+        // Show warning about ClickHouse but don't treat as error since we have file tokens
+        console.warn('ClickHouse warning:', result.error);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tokens');
       setDefaultTokens([]);
       setCustomTokens([]);
+      setSources({ clickhouse: false, files: false });
     } finally {
       setLoading(false);
     }
@@ -153,7 +112,29 @@ export default function LoadTokenModal({ isOpen, onClose, onLoadToken }: LoadTok
       <div className="bg-white rounded-lg p-6 w-[600px] max-w-[90vw] max-h-[80vh] mx-4 shadow-xl flex flex-col pointer-events-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Load Existing Token</h2>
+          <div>
+            <h2 className="text-xl font-bold text-gray-800">Load Existing Token</h2>
+            {!loading && (sources.clickhouse || sources.files) && (
+              <div className="flex gap-2 mt-1">
+                <span className="text-xs text-gray-500">Sources:</span>
+                {sources.files && (
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                    Files ✓
+                  </span>
+                )}
+                {sources.clickhouse && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                    ClickHouse ✓
+                  </span>
+                )}
+                {!sources.clickhouse && sources.files && (
+                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">
+                    ClickHouse ⚠
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl font-bold"

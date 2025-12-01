@@ -23,6 +23,7 @@ dependencies using Homebrew and the command `brew bundle`
 Running with Manifests using Tilt use `task tilt`
 
 To run for local development you can use `task run-dev`
+_(Note, not using Tilt means you will not have the ClickHouse database)_
 
 For a proper build of the Docker container you can use `task docker-run`
 

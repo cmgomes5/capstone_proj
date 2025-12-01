@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Token } from '../models/Token';
+import { saveTokenToBothSources } from '../services/saveTokenService';
 
 interface EditTokenModalProps {
   isOpen: boolean;
@@ -109,7 +110,7 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
     onClose();
   };
 
-  const handleSaveToCustom = () => {
+  const handleSaveToCustom = async () => {
     if (!token) return;
     
     // Validation
@@ -140,28 +141,29 @@ export default function EditTokenModal({ isOpen, token, onClose, onUpdateToken, 
       ...(imageUrl && { imageUrl })
     };
 
-    // Create filename from token name (sanitized)
-    const sanitizedName = name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
-    const filename = `${sanitizedName}.json`;
-
-    // Create downloadable file
-    const jsonContent = JSON.stringify([tokenData], null, 2);
-    const blob = new Blob([jsonContent], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.style.display = 'none';
-    
-    // Trigger download
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    alert(`Token saved as ${filename}!\n\nTo use this token:\n1. Place the file in /public/tokens/custom/\n2. Add "${filename}" to /public/tokens/custom/catalog.txt`);
+    try {
+      // Save to both local file and ClickHouse
+      const result = await saveTokenToBothSources(tokenData);
+      
+      // Create success message based on what worked
+      let message = '';
+      
+      if (result.localFile.success && result.clickhouse.success) {
+        message = `Token saved successfully!\n\n✓ Local file: ${result.localFile.filename}\n✓ ClickHouse database\n\nTo use the local file:\n1. Place it in /public/tokens/custom/\n2. Add "${result.localFile.filename}" to /public/tokens/custom/catalog.txt`;
+      } else if (result.localFile.success && !result.clickhouse.success) {
+        message = `Token saved to local file: ${result.localFile.filename}\n\n⚠ ClickHouse save failed: ${result.clickhouse.error}\n\nTo use the local file:\n1. Place it in /public/tokens/custom/\n2. Add "${result.localFile.filename}" to /public/tokens/custom/catalog.txt`;
+      } else if (!result.localFile.success) {
+        message = `Failed to save token!\n\nLocal file error: ${result.localFile.error}`;
+        if (result.clickhouse.success) {
+          message += '\n\n✓ ClickHouse database save succeeded';
+        }
+      }
+      
+      alert(message);
+    } catch (error) {
+      console.error('Error saving token:', error);
+      alert('An unexpected error occurred while saving the token.');
+    }
   };
 
   if (!isOpen || !token) return null;
