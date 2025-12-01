@@ -54,6 +54,11 @@ tasks:
       - cmd: kubectl config use-context k3d-virtual-dm
       - tilt up
 
+  k3d-destroy:
+    desc: Destroy the K3d cluster
+    cmds:
+      - k3d cluster delete virtual-dm
+
   tilt-ci:
     desc: Load Virtual DM Tilt Cluster with local build (CI mode)
     env:
